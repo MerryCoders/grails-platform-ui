@@ -225,13 +225,17 @@ class UISets implements ApplicationContextAware, InitializingBean {
     }
 
     String getUICSSClass(request, symbolicName, defaultValue = '') {
+        def theme = grailsThemes.getRequestTheme(request)
         def uiSets = getUISetsToUse(request)
         def v
         for (ui in uiSets) {
             if (log.debugEnabled) {
                 log.debug "Seeing if UI Set [${ui?.name}] has a CSS class for [${symbolicName}]"
             }
-            def confValue = pluginConfig.ui[ui.name][symbolicName].cssClass
+            def confValue = pluginConfig.themes."${theme.name}".ui."${symbolicName}".cssClass
+            if (confValue.isEmpty()) {
+                confValue = pluginConfig.ui[ui.name][symbolicName].cssClass
+            }
             if (!(confValue instanceof ConfigObject)) {
                 v = confValue
                 break
